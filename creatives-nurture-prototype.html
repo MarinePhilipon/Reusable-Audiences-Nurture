@@ -801,14 +801,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
     var couponErr = document.getElementById('bar-coupon-err');
     var nurtureErr = document.getElementById('bar-nurture-err');
 
-    // Coupon error: coupons = yes but no code selected
-    var couponMissing = hasCoupon && couponSel && couponSel.value === '';
-    if (couponErr) couponErr.style.display = couponMissing ? 'inline' : 'none';
+    // Step 1 — coupon code not yet selected
+    var couponMissing = hasCoupon && (!couponSel || couponSel.value === '');
+    // Step 2 — coupon selected but no journey linked (only once step 1 is resolved)
+    var nurtureMissing = hasCoupon && couponSel && couponSel.value !== '' && linkedNurture.length === 0;
 
-    // Nurture error: coupon code chosen but no journey linked
-    var couponChosen = hasCoupon && couponSel && couponSel.value !== '';
-    var nurtureMissing = couponChosen && linkedNurture.length === 0;
-    if (nurtureErr) nurtureErr.style.display = nurtureMissing ? 'inline' : 'none';
+    if (couponErr) couponErr.style.display = couponMissing ? 'inline' : 'none';
+    // Never show nurture error while coupon error is active
+    if (nurtureErr) nurtureErr.style.display = (!couponMissing && nurtureMissing) ? 'inline' : 'none';
   }
 
   function updateNurtureSection() {
