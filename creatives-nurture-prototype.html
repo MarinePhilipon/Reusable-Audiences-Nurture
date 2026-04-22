@@ -683,6 +683,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
                   </label>
                 </div>
               </div>
+              <!-- Nurture Required: locked ON when offer + coupon + journey all linked -->
+              <div class="cce-required-row" id="nurture-required-row" style="display:none;">
+                <div class="cce-required-left">
+                  <div class="cce-required-label" style="color:var(--text-light);">Nurture Required</div>
+                  <div class="cce-desc">This toggle is locked. A coupon is linked to a nurture journey, so the nurture must send for the creative to be eligible.</div>
+                </div>
+                <div class="toggle-wrap" style="margin-left:16px;opacity:0.5;">
+                  <span class="toggle-lbl">On</span>
+                  <label class="toggle">
+                    <input type="checkbox" checked disabled>
+                    <div class="toggle-track"></div>
+                    <div class="toggle-thumb"></div>
+                  </label>
+                </div>
+              </div>
               <div id="nurture-disclaimer-hint" class="field-hint" style="display:none;margin-top:10px;">A disclaimer will be automatically added to the creative when a nurture journey is linked.</div>
             </div>
 
@@ -822,9 +837,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
   function updateNurtureSection() {
     var blockedPanel = document.getElementById('nurture-blocked-panel');
     var availablePanel = document.getElementById('nurture-available-panel');
-    var cceEditableRow = document.getElementById('cce-editable-row');
-    var cceLockedRow   = document.getElementById('cce-locked-row');
-    var disclaimerHint = document.getElementById('nurture-disclaimer-hint');
+    var cceEditableRow      = document.getElementById('cce-editable-row');
+    var cceLockedRow        = document.getElementById('cce-locked-row');
+    var nurtureRequiredRow  = document.getElementById('nurture-required-row');
+    var disclaimerHint      = document.getElementById('nurture-disclaimer-hint');
 
     // Offer-dependent: search/table panel
     if (!hasRealOffer) {
@@ -850,6 +866,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
         if (toggle) toggleCCEEditable(toggle);
       }
     }
+
+    // Nurture Required: locked when offer + coupon + at least one journey linked
+    var nurtureRequired = hasRealOffer && hasCoupon && linkedNurture.length > 0;
+    if (nurtureRequiredRow) nurtureRequiredRow.style.display = nurtureRequired ? 'flex' : 'none';
 
     // Disclaimer hint: show whenever offer is linked
     if (disclaimerHint) disclaimerHint.style.display = hasRealOffer ? 'block' : 'none';
@@ -1075,6 +1095,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
     if (linkedNurture.length > 0) {
       var err = document.getElementById('nurture-journey-error');
       if (err) err.style.display = 'none';
+    }
+    // Update Nurture Required row visibility
+    var nurtureRequiredRow = document.getElementById('nurture-required-row');
+    if (nurtureRequiredRow) {
+      nurtureRequiredRow.style.display = (hasRealOffer && hasCoupon && linkedNurture.length > 0) ? 'flex' : 'none';
     }
   }
 
