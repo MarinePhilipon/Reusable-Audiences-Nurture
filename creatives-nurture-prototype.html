@@ -838,8 +838,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
       availablePanel.style.display = 'block';
     }
 
-    // CCE rows: visible whenever hasCoupon, regardless of offer state
-    if (hasCoupon) {
+    // CCE rows: only when offer is linked AND at least one journey is linked
+    var showCCE = hasRealOffer && linkedNurture.length > 0;
+    if (!showCCE) {
+      if (cceEditableRow) cceEditableRow.style.display = 'none';
+      if (cceLockedRow)   cceLockedRow.style.display   = 'none';
+    } else if (hasCoupon) {
       if (cceEditableRow) cceEditableRow.style.display = 'none';
       if (cceLockedRow)   cceLockedRow.style.display   = 'flex';
     } else {
@@ -1076,6 +1080,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
       var err = document.getElementById('nurture-journey-error');
       if (err) err.style.display = 'none';
     }
+    updateNurtureSection();
   }
 
   function unlinkNurture(name) {
