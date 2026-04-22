@@ -6,4 +6,4 @@ Prototypes for the Creative Wizard **Nurture for Reusable Audiences** feature.
 
 | Prototype | Description | Open |
 |-----------|-------------|------|
-| Creatives Nurture | Full Creative Wizard form with Nurture Journey linking, offer/coupon reactive state, and variant switcher | [**Open in browser →**](https://raw.githack.com/MarinePhilipon/Reusable-Audiences-Nurture/add-creatives-nurture-prototype/creatives-nurture-prototype.html) |
+| Creatives Nurture | Full Creative Wizard form with Nurture Journey linking, offer/coupon reactive state, and variant switcher | [**Open in browser →**](https://raw.githack.com/MarinePhilipon/Reusable-Audiences-Nurture/main/creatives-nurture-prototype.html) |
