@@ -1080,7 +1080,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
       var err = document.getElementById('nurture-journey-error');
       if (err) err.style.display = 'none';
     }
-    updateNurtureSection();
+    // Update CCE row visibility based on current state
+    var showCCE = hasRealOffer && linkedNurture.length > 0;
+    var cceEditable = document.getElementById('cce-editable-row');
+    var cceLocked   = document.getElementById('cce-locked-row');
+    if (!showCCE) {
+      if (cceEditable) cceEditable.style.display = 'none';
+      if (cceLocked)   cceLocked.style.display   = 'none';
+    } else if (hasCoupon) {
+      if (cceEditable) cceEditable.style.display = 'none';
+      if (cceLocked)   cceLocked.style.display   = 'flex';
+    } else {
+      if (cceLocked)   cceLocked.style.display   = 'none';
+      if (cceEditable) cceEditable.style.display = 'flex';
+    }
+    updateBarErrors();
   }
 
   function unlinkNurture(name) {
