@@ -1234,16 +1234,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
   // ─────────────────────────────────────────────
   function handleSubmit() {
     var err = document.getElementById('nurture-journey-error');
-    // Validation only needed when coupons = yes
-    if (hasCoupon && hasRealOffer) {
-      if (linkedNurture.length === 0) {
-        err.style.display = 'flex';
-        // Expand nurture section if collapsed
-        var sec = document.getElementById('sec-nurture');
-        if (sec) sec.classList.remove('collapsed');
-        err.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
+    if (hasCoupon && hasRealOffer && linkedNurture.length === 0) {
+      err.style.display = 'flex';
+      if (currentVariant === 'B') {
+        // Nurture body is inside More Options — expand it
+        document.getElementById('sec-optional').classList.remove('collapsed');
+      } else {
+        // Nurture is its own section — expand both it and its divider
+        document.getElementById('sec-nurture').classList.remove('collapsed');
       }
+      err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
     }
     if (err) err.style.display = 'none';
     alert('Creative submitted successfully.');
