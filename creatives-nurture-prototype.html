@@ -373,13 +373,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
       <div class="form-header">
         <span class="form-title">New Creative</span>
         <div class="draft-badge"><span style="color:#ccc">&bull;</span><div class="draft-dot"></div><span>Draft</span></div>
-        <div style="margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-mid);">
-          <span style="font-weight:500;">Nurture layout:</span>
-          <div style="display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;">
-            <button id="var-a-btn" onclick="setVariant('A')" style="padding:4px 10px;font-size:11px;font-weight:600;border:none;cursor:pointer;background:var(--rokt);color:#fff;">Separate section</button>
-            <button id="var-b-btn" onclick="setVariant('B')" style="padding:4px 10px;font-size:11px;font-weight:600;border:none;cursor:pointer;background:var(--white);color:var(--text-mid);">Inside Optional</button>
-          </div>
-        </div>
       </div>
 
       <div class="form-body">
@@ -608,122 +601,89 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
                 <label class="radio-opt"><input type="radio" name="sched" value="dates"> Set a start and end</label>
               </div>
             </div>
-            <!-- Nurture injected here in Variant B -->
-            <div id="nurture-in-optional" style="display:none;"></div>
+
+            <!-- Link Nurture Journey — inline, same style as Coupons -->
+            <div class="option-group" style="border-bottom:none;padding-bottom:0;margin-top:4px;">
+              <div class="option-label">Link Nurture Journey</div>
+
+              <!-- BLOCKED: no offer linked -->
+              <div id="nurture-blocked-panel" style="margin-top:4px;">
+                <div class="field-hint">Link an offer in the <strong>Link Offers</strong> section to enable.</div>
+              </div>
+
+              <!-- AVAILABLE: offer linked -->
+              <div id="nurture-available-panel" style="display:none;margin-top:6px;">
+                <div style="position:relative;">
+                  <div class="adset-trigger" id="nurture-trigger" onclick="toggleNurtureDD()">
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="#bbb" stroke-width="1.4"/><path d="M9 9l2.5 2.5" stroke="#bbb" stroke-width="1.4" stroke-linecap="round"/></svg>
+                    <input class="search-inp" style="border:none;padding:0;cursor:pointer;font-size:13px;flex:1;" type="text" placeholder="Search for a nurture journey to link" id="nurture-search-inp" onfocus="openNurtureDD()" onblur="scheduleCloseNurtureDD()">
+                  </div>
+                  <div class="offer-dropdown-menu" id="nurture-menu" style="display:none;">
+                    <div class="adset-menu-item" onclick="delegateCb('nurture-cb-all')">
+                      <input type="checkbox" id="nurture-cb-all" onclick="event.stopPropagation()" onchange="nurtureCbChange('__all__',this)"> <span>Select All</span>
+                    </div>
+                    <div class="adset-menu-item" onclick="delegateCb('nurture-cb-0')">
+                      <input type="checkbox" id="nurture-cb-0" onclick="event.stopPropagation()" onchange="nurtureCbChange('Summer Sale CCE Journey',this)"> <span>Summer Sale CCE Journey</span>
+                    </div>
+                    <div class="adset-menu-item" onclick="delegateCb('nurture-cb-1')">
+                      <input type="checkbox" id="nurture-cb-1" onclick="event.stopPropagation()" onchange="nurtureCbChange('Loyalty Confirmation Journey',this)"> <span>Loyalty Confirmation Journey</span>
+                    </div>
+                    <div class="adset-menu-item" onclick="delegateCb('nurture-cb-2')">
+                      <input type="checkbox" id="nurture-cb-2" onclick="event.stopPropagation()" onchange="nurtureCbChange('Spring Promo Journey',this)"> <span>Spring Promo Journey</span>
+                    </div>
+                    <div style="padding:9px 12px;border-top:1px solid var(--border);">
+                      <a href="https://my.rokt.com/nurture" target="_blank" onclick="openNurtureTab(event)" style="color:var(--rokt);font-size:13px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:5px;">
+                        <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1.5v8M1.5 5.5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        Create a nurture journey
+                      </a>
+                    </div>
+                  </div>
+                  <div id="nurture-overlay" onclick="closeNurtureDD()" style="display:none;position:fixed;inset:0;z-index:49;"></div>
+                </div>
+                <div class="link-table" style="margin-top:8px;">
+                  <div class="link-table-hdr">Nurture Journeys</div>
+                  <div id="nurture-linked-rows"></div>
+                  <div id="nurture-empty-row" class="link-table-empty">No journeys linked</div>
+                </div>
+                <div id="nurture-ab-hint" class="field-hint" style="display:none;margin-top:6px;">When multiple journeys are selected, traffic is split equally between them as an A/B test.</div>
+                <div id="nurture-journey-error" class="banner error" style="display:none;margin-top:8px;">
+                  <svg class="banner-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="var(--red)"/><path d="M7 4v4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="10" r="1" fill="#fff"/></svg>
+                  <span>A journey must be linked &mdash; the coupon cannot be delivered without one.</span>
+                </div>
+                <div class="cce-required-row" id="cce-editable-row">
+                  <div class="cce-required-left">
+                    <div class="cce-required-label">CCE Required</div>
+                    <div class="cce-desc" id="cce-editable-desc">Creative will be blocked if the CCE cannot send. Toggle off to make optional &mdash; creative will remain eligible and CCE sends best-effort.</div>
+                  </div>
+                  <div class="toggle-wrap" style="margin-left:16px;">
+                    <span class="toggle-lbl" id="cce-editable-lbl">On</span>
+                    <label class="toggle">
+                      <input type="checkbox" checked id="cce-editable-toggle" onchange="toggleCCEEditable(this)">
+                      <div class="toggle-track"></div>
+                      <div class="toggle-thumb"></div>
+                    </label>
+                  </div>
+                </div>
+                <div class="cce-required-row" id="cce-locked-row" style="display:none;">
+                  <div class="cce-required-left">
+                    <div class="cce-required-label">CCE Required</div>
+                    <div class="cce-desc">This toggle is locked. A coupon is present, so the CCE must send for the creative to be eligible. If the CCE cannot send, the creative will be blocked.</div>
+                  </div>
+                  <div class="toggle-wrap" style="margin-left:16px;">
+                    <span class="toggle-lbl">On</span>
+                    <label class="toggle">
+                      <input type="checkbox" checked disabled>
+                      <div class="toggle-track"></div>
+                      <div class="toggle-thumb"></div>
+                    </label>
+                  </div>
+                </div>
+                <div class="field-hint" style="margin-top:10px;">A disclaimer will be automatically added to the creative when a nurture journey is linked.</div>
+              </div>
+            </div>
+
           </div>
         </div>
-
-        <!-- ════════════════════════════════
-             LINK NURTURE JOURNEY (Unified Reactive)
-        ════════════════════════════════ -->
-        <div class="section-divider" id="nurture-divider"></div>
-        <div class="collapsible-section nurture-section collapsed" id="sec-nurture">
-          <button class="collapsible-hdr" onclick="this.closest('.collapsible-section').classList.toggle('collapsed')" id="nurture-hdr-btn">
-            <span class="collapsible-title" id="nurture-section-title">Link Nurture Journey</span>
-            <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#888" stroke-width="1.6" stroke-linecap="round"/></svg>
-          </button>
-          <div class="collapsible-body">
-
-            <!-- BLOCKED PANEL: shown when no real offer is linked -->
-            <div id="nurture-blocked-panel">
-              <div class="nurture-blocked">
-                <div class="nurture-blocked-msg">
-                  <div class="nurture-blocked-icon">
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8" stroke="#bbb" stroke-width="1.5"/><path d="M3 3l12 12" stroke="#bbb" stroke-width="1.5" stroke-linecap="round"/></svg>
-                  </div>
-                  <div>
-                    <div class="nurture-blocked-title">Nurture unavailable</div>
-                    <div class="nurture-blocked-desc">Link an offer in the <strong>Link Offers</strong> section above to enable nurture journey configuration.</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- AVAILABLE PANEL: shown when a real offer is linked -->
-            <div id="nurture-available-panel" style="display:none;">
-              <div style="position:relative;margin-top:8px;">
-                <div class="adset-trigger" id="nurture-trigger" onclick="toggleNurtureDD()">
-                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="#bbb" stroke-width="1.4"/><path d="M9 9l2.5 2.5" stroke="#bbb" stroke-width="1.4" stroke-linecap="round"/></svg>
-                  <input class="search-inp" style="border:none;padding:0;cursor:pointer;font-size:13px;flex:1;" type="text" placeholder="Search for a nurture journey to link" id="nurture-search-inp" onfocus="openNurtureDD()" onblur="scheduleCloseNurtureDD()">
-                </div>
-                <div class="offer-dropdown-menu" id="nurture-menu" style="display:none;">
-                  <div class="adset-menu-item" onclick="delegateCb('nurture-cb-all')">
-                    <input type="checkbox" id="nurture-cb-all" onclick="event.stopPropagation()" onchange="nurtureCbChange('__all__',this)"> <span>Select All</span>
-                  </div>
-                  <div class="adset-menu-item" onclick="delegateCb('nurture-cb-0')">
-                    <input type="checkbox" id="nurture-cb-0" onclick="event.stopPropagation()" onchange="nurtureCbChange('Summer Sale CCE Journey',this)"> <span>Summer Sale CCE Journey</span>
-                  </div>
-                  <div class="adset-menu-item" onclick="delegateCb('nurture-cb-1')">
-                    <input type="checkbox" id="nurture-cb-1" onclick="event.stopPropagation()" onchange="nurtureCbChange('Loyalty Confirmation Journey',this)"> <span>Loyalty Confirmation Journey</span>
-                  </div>
-                  <div class="adset-menu-item" onclick="delegateCb('nurture-cb-2')">
-                    <input type="checkbox" id="nurture-cb-2" onclick="event.stopPropagation()" onchange="nurtureCbChange('Spring Promo Journey',this)"> <span>Spring Promo Journey</span>
-                  </div>
-                  <div style="padding:9px 12px;border-top:1px solid var(--border);">
-                    <a href="https://my.rokt.com/nurture" target="_blank" onclick="openNurtureTab(event)" style="color:var(--rokt);font-size:13px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:5px;">
-                      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1.5v8M1.5 5.5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                      Create a nurture journey
-                    </a>
-                  </div>
-                </div>
-                <div id="nurture-overlay" onclick="closeNurtureDD()" style="display:none;position:fixed;inset:0;z-index:49;"></div>
-              </div>
-
-              <!-- Linked journeys table -->
-              <div class="link-table" style="margin-top:8px;">
-                <div class="link-table-hdr">Nurture Journeys</div>
-                <div id="nurture-linked-rows"></div>
-                <div id="nurture-empty-row" class="link-table-empty">No journeys linked</div>
-              </div>
-              <div id="nurture-ab-hint" class="field-hint" style="display:none;margin-top:6px;">When multiple journeys are selected, traffic is split equally between them as an A/B test.</div>
-
-              <!-- Submit error: shown when coupons=yes and no journey linked -->
-              <div id="nurture-journey-error" class="banner error" style="display:none;margin-top:8px;">
-                <svg class="banner-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="var(--red)"/><path d="M7 4v4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="10" r="1" fill="#fff"/></svg>
-                <span>A journey must be linked &mdash; the coupon cannot be delivered without one.</span>
-              </div>
-
-              <!-- CCE Required toggle: editable (no coupon) -->
-              <div class="cce-required-row" id="cce-editable-row">
-                <div class="cce-required-left">
-                  <div class="cce-required-label">
-                    CCE Required
-                  </div>
-                  <div class="cce-desc" id="cce-editable-desc">Creative will be blocked if the CCE cannot send. Toggle off to make optional &mdash; creative will remain eligible and CCE sends best-effort.</div>
-                </div>
-                <div class="toggle-wrap" style="margin-left:16px;">
-                  <span class="toggle-lbl" id="cce-editable-lbl">On</span>
-                  <label class="toggle">
-                    <input type="checkbox" checked id="cce-editable-toggle" onchange="toggleCCEEditable(this)">
-                    <div class="toggle-track"></div>
-                    <div class="toggle-thumb"></div>
-                  </label>
-                </div>
-              </div>
-
-              <!-- CCE Required toggle: locked ON (coupon present) -->
-              <div class="cce-required-row" id="cce-locked-row" style="display:none;">
-                <div class="cce-required-left">
-                  <div class="cce-required-label">
-                    CCE Required
-                  </div>
-                  <div class="cce-desc">This toggle is locked. A coupon is present, so the CCE must send for the creative to be eligible. If the CCE cannot send, the creative will be blocked.</div>
-                </div>
-                <div class="toggle-wrap" style="margin-left:16px;">
-                  <span class="toggle-lbl">On</span>
-                  <label class="toggle">
-                    <input type="checkbox" checked disabled>
-                    <div class="toggle-track"></div>
-                    <div class="toggle-thumb"></div>
-                  </label>
-                </div>
-              </div>
-
-              <div class="field-hint" style="margin-top:10px;">A disclaimer will be automatically added to the creative when a nurture journey is linked.</div>
-            </div>
-
-          </div><!-- /collapsible-body -->
-        </div><!-- /nurture section -->
 
       </div><!-- /form-body -->
     </div><!-- /form-col -->
@@ -1202,66 +1162,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
   }
 
   // ─────────────────────────────────────────────
-  // Variant switcher: A = separate collapsible, B = inline inside More Options
-  // ─────────────────────────────────────────────
-  var currentVariant = 'A';
-  function setVariant(v) {
-    currentVariant = v;
-    var secNurture  = document.getElementById('sec-nurture');
-    var nurtureDiv  = document.getElementById('nurture-divider');
-    var secOptional = document.getElementById('sec-optional');
-    var nurtureSlot = document.getElementById('nurture-in-optional');
-    var nurtureBody = secNurture.querySelector('.collapsible-body');
-    var btnA        = document.getElementById('var-a-btn');
-    var btnB        = document.getElementById('var-b-btn');
-
-    if (v === 'A') {
-      // Move body back into the collapsible section
-      secNurture.appendChild(nurtureBody);
-      nurtureSlot.style.display = 'none';
-      nurtureDiv.style.display  = '';
-      secNurture.style.display  = '';
-      btnA.style.background = 'var(--rokt)'; btnA.style.color = '#fff';
-      btnB.style.background = 'var(--white)'; btnB.style.color = 'var(--text-mid)';
-    } else {
-      // Wrap the nurture body in an option-group row (no collapsible chrome)
-      nurtureSlot.innerHTML = '';
-      var divider = document.createElement('div');
-      divider.style.cssText = 'height:1px;background:var(--border);margin:4px 0 12px;';
-      var grp = document.createElement('div');
-      grp.className = 'option-group';
-      grp.style.cssText = 'border-bottom:none;padding-bottom:0;';
-      var lbl = document.createElement('div');
-      lbl.className = 'option-label';
-      lbl.textContent = 'Link Nurture Journey';
-      grp.appendChild(lbl);
-      grp.appendChild(nurtureBody);
-      nurtureSlot.appendChild(divider);
-      nurtureSlot.appendChild(grp);
-      nurtureSlot.style.display = 'block';
-      // Hide the standalone section + its divider
-      nurtureDiv.style.display  = 'none';
-      secNurture.style.display  = 'none';
-      secOptional.classList.remove('collapsed');
-      btnB.style.background = 'var(--rokt)'; btnB.style.color = '#fff';
-      btnA.style.background = 'var(--white)'; btnA.style.color = 'var(--text-mid)';
-    }
-  }
-
-  // ─────────────────────────────────────────────
   // Submit validation
   // ─────────────────────────────────────────────
   function handleSubmit() {
     var err = document.getElementById('nurture-journey-error');
     if (hasCoupon && hasRealOffer && linkedNurture.length === 0) {
       err.style.display = 'flex';
-      if (currentVariant === 'B') {
-        // Nurture body is inside More Options — expand it
-        document.getElementById('sec-optional').classList.remove('collapsed');
-      } else {
-        // Nurture is its own section — expand both it and its divider
-        document.getElementById('sec-nurture').classList.remove('collapsed');
-      }
+      // Nurture is always inside More Options — expand it
+      document.getElementById('sec-optional').classList.remove('collapsed');
       err.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
