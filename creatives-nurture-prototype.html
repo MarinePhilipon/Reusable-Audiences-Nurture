@@ -577,8 +577,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
                 <div>
                   <div class="lbl" style="margin-bottom:4px;">Coupon Code</div>
                   <div style="position:relative;">
-                    <select class="inp" style="appearance:none;padding-right:28px;cursor:pointer;">
-                      <option>Select coupon&hellip;</option>
+                    <select class="inp" id="coupon-select" style="appearance:none;padding-right:28px;cursor:pointer;" onchange="updateState()">
+                      <option value="">Select coupon&hellip;</option>
                       <option>Test Coupon</option>
                       <option>Summer Sale 20%</option>
                       <option>VIP Discount</option>
@@ -798,7 +798,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
 <!-- BOTTOM BAR -->
 <div class="bottom-bar">
   <button class="btn-prev">Previous</button>
-  <div class="bottom-right">
+  <div style="display:flex;align-items:center;gap:16px;">
+    <span id="bar-coupon-err" style="display:none;color:var(--rokt);font-size:13px;font-weight:500;">Please select a coupon</span>
+    <span id="bar-nurture-err" style="display:none;color:var(--rokt);font-size:13px;font-weight:500;">Please link a nurture journey</span>
     <button class="btn-save">Save and Exit</button>
     <button class="btn-submit" id="submit-btn" onclick="handleSubmit()">Submit</button>
   </div>
@@ -831,6 +833,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
     });
 
     updateNurtureSection();
+    updateBarErrors();
+  }
+
+  function updateBarErrors() {
+    var couponSel = document.getElementById('coupon-select');
+    var couponErr = document.getElementById('bar-coupon-err');
+    var nurtureErr = document.getElementById('bar-nurture-err');
+
+    // Coupon error: coupons = yes but no code selected
+    var couponMissing = hasCoupon && couponSel && couponSel.value === '';
+    if (couponErr) couponErr.style.display = couponMissing ? 'inline' : 'none';
+
+    // Nurture error: coupon selected (code chosen) + offer linked but no journey linked
+    var couponChosen = hasCoupon && couponSel && couponSel.value !== '';
+    var nurtureMissing = couponChosen && hasRealOffer && linkedNurture.length === 0;
+    if (nurtureErr) nurtureErr.style.display = nurtureMissing ? 'inline' : 'none';
   }
 
   function updateNurtureSection() {
@@ -1064,6 +1082,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
       if (allCb) allCb.checked = allChecked;
     }
     renderNurtureRows();
+    updateBarErrors();
   }
 
   function renderNurtureRows() {
@@ -1095,6 +1114,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
     var allCb = document.getElementById('nurture-cb-all');
     if (allCb) allCb.checked = false;
     renderNurtureRows();
+    updateBarErrors();
   }
 
   // ─────────────────────────────────────────────
