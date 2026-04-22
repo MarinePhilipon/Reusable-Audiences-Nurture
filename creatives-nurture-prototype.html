@@ -782,12 +782,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
   // ─────────────────────────────────────────────
   function updateState() {
     var radios = document.querySelectorAll('input[name="coupons"]');
+    var prevCoupon = hasCoupon;
     hasCoupon = false;
     radios.forEach(function(r) { if (r.checked && r.value === 'yes') hasCoupon = true; });
 
-    // Show/hide coupon fields
+    // Show/hide coupon fields; reset select whenever the radio changes
     var cf = document.getElementById('coupon-fields');
+    var couponSel = document.getElementById('coupon-select');
     if (cf) cf.style.display = hasCoupon ? 'grid' : 'none';
+    if (prevCoupon !== hasCoupon && couponSel) couponSel.value = '';
 
     // Preview disclaimer strip: show when nurture available (real offer linked)
     var showDisc = hasRealOffer;
