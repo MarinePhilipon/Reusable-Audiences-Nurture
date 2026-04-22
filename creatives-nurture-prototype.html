@@ -819,9 +819,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
     var cceBanner = document.getElementById('cce-optional-banner');
 
     if (!hasRealOffer) {
-      // Show blocked, hide available
+      // Show blocked, hide available — also reset any linked journeys
       blockedPanel.style.display = 'block';
       availablePanel.style.display = 'none';
+      linkedNurture = [];
+      renderNurtureRows();
+      updateBarErrors();
     } else {
       // Hide blocked, show available
       blockedPanel.style.display = 'none';
