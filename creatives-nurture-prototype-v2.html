@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creative Wizard – Nurture (Reusable Audiences)</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --rokt: #9B1756; --rokt-dark: #7a1244; --rokt-light: #fdf0f7;
+  --text: #1a1a2e; --text-mid: #555; --text-light: #999;
+  --border: #e2e2e2; --bg: #f8f8f8; --white: #fff;
+  --green: #2ea84c; --green-light: #edfaf2; --green-border: #b7e8c8;
+  --orange: #f5a623; --orange-light: #fff8ee; --orange-border: #fad89b;
+  --red: #d0021b; --red-light: #fff2f3; --red-border: #f5b8bc;
+  --blue: #0066cc; --blue-light: #eef5ff;
+  --radius: 8px;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; font-size: 13px; color: var(--text); background: var(--white); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── TOP NAV ── */
+.topnav { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 50px; border-bottom: 1px solid var(--border); background: var(--white); flex-shrink: 0; }
+.nav-left { display: flex; align-items: center; gap: 10px; }
+.back-btn { width: 28px; height: 28px; border: none; background: none; cursor: pointer; color: var(--text-mid); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+.back-btn:hover { background: var(--bg); }
+.campaign-title { font-size: 14px; font-weight: 600; }
+.stepper { display: flex; align-items: center; }
+.step { display: flex; align-items: center; gap: 6px; }
+.step-badge { width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.step-badge.done { background: var(--white); border: 2px solid var(--green); color: var(--green); }
+.step-badge.active { background: var(--rokt); color: var(--white); }
+.step-label { font-size: 12px; color: var(--text-mid); }
+.step-label.active { font-weight: 700; color: var(--text); }
+.step-line { width: 44px; height: 1px; background: var(--border); margin: 0 6px; }
+.step-line.done { background: var(--green); }
+
+/* ── LAYOUT ── */
+.layout { display: flex; flex: 1; min-height: 0; }
+
+/* ── SIDEBAR ── */
+.sidebar { width: 210px; flex-shrink: 0; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+.sidebar-top { padding: 10px 10px 8px; border-bottom: 1px solid var(--bg); }
+.search-bar { display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); border-radius: var(--radius); padding: 5px 8px; background: var(--white); color: var(--text-light); font-size: 12px; }
+.sidebar-row { padding: 6px 10px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--bg); }
+.btn-add { display: flex; align-items: center; gap: 5px; background: var(--rokt); color: var(--white); border: none; border-radius: var(--radius); padding: 6px 11px; font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0; }
+.btn-sort { flex: 1; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border); border-radius: var(--radius); padding: 5px 8px; background: var(--white); font-size: 12px; color: var(--text-mid); cursor: pointer; }
+.creative-list { flex: 1; overflow-y: auto; }
+.c-item { display: flex; align-items: center; padding: 9px 12px 9px 14px; cursor: pointer; border-bottom: 1px solid #fafafa; }
+.c-item.active { background: var(--rokt-light); }
+.c-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-right: 9px; }
+.c-dot.pink { background: var(--rokt); }
+.c-dot.gray { background: #c8c8c8; }
+.c-name { font-size: 13px; font-weight: 500; }
+.c-item.active .c-name { color: var(--rokt); }
+.c-id { font-size: 10px; color: var(--text-light); }
+
+/* ── CONTENT ── */
+.content-wrap { flex: 1; display: flex; min-width: 0; overflow: hidden; }
+.form-col { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+.form-header { padding: 12px 22px 10px; border-bottom: 1px solid var(--bg); flex-shrink: 0; display: flex; align-items: center; gap: 10px; }
+.form-title { font-size: 15px; font-weight: 600; }
+.draft-badge { display: flex; align-items: center; gap: 5px; color: var(--text-light); font-size: 12px; }
+.draft-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); }
+.form-body { flex: 1; overflow-y: auto; padding: 20px 22px 40px; }
+
+/* Form fields */
+.field { margin-bottom: 16px; }
+.field-row { display: flex; gap: 14px; margin-bottom: 16px; }
+.field-row .field { flex: 1; margin-bottom: 0; }
+.lbl { display: block; font-size: 12px; font-weight: 600; color: var(--text-mid); margin-bottom: 5px; }
+.req { color: var(--rokt); }
+.inp { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; font-size: 13px; color: var(--text); background: var(--white); outline: none; font-family: inherit; transition: border-color .15s; }
+.inp:focus { border-color: var(--rokt); box-shadow: 0 0 0 3px rgba(155,23,86,.1); }
+.inp::placeholder { color: #c0c0c0; font-size: 12px; }
+.inp-wrap { position: relative; }
+.inp-counter { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--text-light); pointer-events: none; }
+.txta { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px 24px; font-size: 13px; color: var(--text); background: var(--white); outline: none; resize: none; height: 80px; font-family: inherit; }
+.txta:focus { border-color: var(--rokt); box-shadow: 0 0 0 3px rgba(155,23,86,.1); }
+.txta::placeholder { color: #c0c0c0; }
+.lbl-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+.insert-attr { display: flex; align-items: center; gap: 4px; background: none; border: none; color: var(--rokt); font-size: 12px; font-weight: 600; cursor: pointer; }
+.field-hint { font-size: 11px; color: var(--text-light); margin-top: 4px; line-height: 1.45; }
+.total-char { font-size: 12px; color: var(--text-mid); margin-bottom: 16px; }
+.cta-inp-wrap { position: relative; }
+.cta-emoji { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
+.inp.with-emoji { padding-left: 30px; }
+.url-row { display: flex; gap: 8px; }
+.url-row .inp { flex: 1; }
+.btn-outline { border: 1px solid var(--border); border-radius: var(--radius); padding: 7px 12px; font-size: 12px; color: var(--text-mid); background: var(--white); cursor: pointer; white-space: nowrap; }
+.btn-outline:hover { background: var(--bg); }
+.upload-zone { border: 2px dashed #d8d8d8; border-radius: 10px; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 6px; background: #fcfcfc; cursor: pointer; text-align: center; margin-top: 6px; }
+.upload-zone:hover { border-color: var(--rokt); background: var(--rokt-light); }
+.upload-title { font-size: 13px; font-weight: 600; color: var(--text-mid); }
+.upload-desc { font-size: 12px; color: var(--text-light); }
+.btn-upload { display: flex; align-items: center; gap: 6px; background: var(--rokt); color: var(--white); border: none; border-radius: var(--radius); padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+
+/* Section divider + collapsible */
+.section-divider { height: 1px; background: var(--border); margin: 2px 0; }
+.collapsible-section { margin-bottom: 0; }
+.collapsible-hdr { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px 0; background: none; border: none; cursor: pointer; }
+.collapsible-title { font-size: 14px; font-weight: 600; }
+.chevron { transition: transform .2s; flex-shrink: 0; }
+.collapsed .chevron { transform: rotate(-90deg); }
+.collapsed .collapsible-body { display: none; }
+.collapsible-body { padding-bottom: 16px; }
+.option-group { padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid var(--bg); }
+.option-label { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.radio-row { display: flex; gap: 18px; margin-bottom: 4px; }
+.radio-opt { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-mid); cursor: pointer; }
+.radio-opt input[type=radio] { accent-color: var(--rokt); width: 15px; height: 15px; cursor: pointer; }
+.checkbox-opt { display: flex; align-items: flex-start; gap: 9px; cursor: pointer; }
+.checkbox-opt input[type=checkbox] { accent-color: var(--rokt); width: 15px; height: 15px; margin-top: 2px; flex-shrink: 0; }
+.search-inp-wrap { display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: var(--radius); padding: 7px 10px; background: var(--white); }
+.search-inp-wrap:focus-within { border-color: var(--rokt); box-shadow: 0 0 0 3px rgba(155,23,86,.1); }
+.search-inp { flex: 1; border: none; outline: none; font-size: 13px; color: var(--text); background: transparent; }
+.search-inp::placeholder { color: #c0c0c0; }
+.link-table { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-top: 8px; }
+.link-table-hdr { padding: 7px 12px; font-size: 12px; font-weight: 600; color: var(--text-mid); background: var(--bg); border-bottom: 1px solid var(--border); }
+.link-table-empty { padding: 12px; font-size: 13px; color: var(--text-light); font-style: italic; }
+.link-table-row { padding: 9px 12px; font-size: 13px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.link-tag { background: var(--rokt-light); color: var(--rokt); border: 1px solid var(--rokt-border,rgba(155,23,86,.2)); border-radius: 12px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
+.offer-overview { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-top: 12px; }
+.offer-overview-hdr { padding: 7px 12px; font-size: 12px; font-weight: 600; color: var(--text-mid); background: var(--bg); border-bottom: 1px solid var(--border); }
+.no-offer-state { padding: 18px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; color: var(--text-mid); }
+
+/* ═══════════════════════════════════
+   NURTURE SECTION
+═══════════════════════════════════ */
+.nurture-section { margin-top: 0; }
+
+/* Blocked state */
+.nurture-blocked { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-top: 8px; }
+.nurture-blocked-msg { display: flex; align-items: flex-start; gap: 10px; }
+.nurture-blocked-icon { flex-shrink: 0; margin-top: 1px; }
+.nurture-blocked-title { font-size: 13px; font-weight: 600; color: var(--text-mid); margin-bottom: 3px; }
+.nurture-empty-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; font-size: 12px; color: var(--text-light); box-shadow: 0 4px 12px rgba(0,0,0,.08); z-index: 50; }
+.adset-trigger { display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; background: #fff; cursor: text; }
+.adset-trigger:focus-within { border-color: var(--rokt); box-shadow: 0 0 0 3px rgba(155,23,86,.1); }
+.adset-menu-item { display: flex; align-items: center; gap: 8px; padding: 9px 12px; font-size: 13px; color: var(--text-mid); cursor: pointer; border-bottom: 1px solid var(--border); }
+.adset-menu-item:last-child { border-bottom: none; }
+.adset-menu-item:hover { background: var(--rokt-light); }
+.adset-menu-item input[type=checkbox] { accent-color: var(--rokt); width: 14px; height: 14px; flex-shrink: 0; cursor: pointer; }
+.adset-unlink-btn { border: 1px solid #e8a0a0; border-radius: 6px; background: #fff; color: #c0392b; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+.adset-unlink-btn:hover { background: #fdf0f0; }
+.adset-badge { background: #fce8e8; color: #c0392b; border: 1px solid #f0b8b8; border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 500; }
+.offer-select-trigger { display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; font-size: 13px; color: var(--text-mid); cursor: pointer; background: #fff; }
+.offer-select-trigger:focus-within, .offer-select-trigger.open { border-color: var(--rokt); box-shadow: 0 0 0 3px rgba(155,23,86,.1); }
+.offer-dropdown-menu { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 12px rgba(0,0,0,.1); z-index: 50; overflow: hidden; }
+.offer-menu-item { padding: 9px 12px; font-size: 13px; color: var(--text-mid); cursor: pointer; }
+.offer-menu-item:hover { background: var(--rokt-light); color: var(--rokt); }
+.nurture-blocked-desc { font-size: 12px; color: var(--text-light); line-height: 1.45; }
+
+/* CCE Required toggle */
+.cce-required-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 14px 0; border-bottom: 1px solid var(--border); margin-top: 12px; }
+.cce-required-left { flex: 1; min-width: 0; }
+.cce-required-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.cce-badge { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px; }
+.cce-badge.hard { background: var(--orange-light); color: #b36b00; border: 1px solid var(--orange-border); }
+.cce-badge.optional { background: var(--green-light); color: #1a7a3c; border: 1px solid var(--green-border); }
+.cce-badge.locked { background: #f0f0f0; color: #666; border: 1px solid #ddd; }
+.cce-desc { font-size: 12px; color: var(--text-light); line-height: 1.5; }
+
+/* Toggle switch */
+.toggle-wrap { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.toggle-lbl { font-size: 12px; color: var(--text-mid); }
+.toggle { position: relative; width: 40px; height: 22px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track { position: absolute; inset: 0; background: #ccc; border-radius: 22px; cursor: pointer; transition: background .2s; }
+.toggle input:checked + .toggle-track { background: var(--rokt); }
+.toggle input:disabled + .toggle-track { opacity: .5; cursor: not-allowed; }
+.toggle-thumb { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); pointer-events: none; }
+.toggle input:checked ~ .toggle-thumb { left: 20px; }
+
+/* Warning / info banners */
+.banner { border-radius: var(--radius); padding: 10px 14px; font-size: 12px; display: flex; align-items: flex-start; gap: 9px; margin-top: 10px; line-height: 1.45; }
+.banner.warning { background: var(--orange-light); border: 1px solid var(--orange-border); color: #7a4800; }
+.banner.error { background: var(--red-light); border: 1px solid var(--red-border); color: var(--red); }
+.banner.info { background: var(--blue-light); border: 1px solid #c0d8f5; color: #004499; }
+.banner.success { background: var(--green-light); border: 1px solid var(--green-border); color: #1a5c30; }
+.banner-icon { flex-shrink: 0; margin-top: 1px; }
+
+/* Disclaimer auto-fill state */
+.disclaimer-auto { background: var(--green-light); border: 1px solid var(--green-border); border-radius: var(--radius); padding: 8px 12px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: #1a5c30; margin-top: 6px; }
+.disclaimer-auto svg { flex-shrink: 0; }
+
+/* Divider */
+.vdivider { width: 1px; background: var(--border); flex-shrink: 0; }
+
+/* ── RIGHT PANEL ── */
+.right-panel { width: 460px; flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto; }
+.score-header { padding: 12px 18px 10px; border-bottom: 1px solid var(--bg); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.score-left { display: flex; align-items: center; gap: 10px; }
+.score-ring { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #bbb; }
+.score-title { font-size: 13px; font-weight: 600; }
+.view-actions { font-size: 12px; color: var(--text-light); background: none; border: none; cursor: pointer; text-decoration: underline; }
+.preview-tabs { display: flex; gap: 6px; padding: 12px 18px 0; flex-shrink: 0; }
+.ptab { border: 1.5px solid #d8d8d8; border-radius: var(--radius); padding: 5px 12px; font-size: 12px; font-weight: 600; color: var(--text-mid); background: var(--white); cursor: pointer; transition: all .15s; }
+.ptab:hover { border-color: var(--rokt); color: var(--rokt); }
+.ptab.active { border-color: #1a1a2e; color: #1a1a2e; }
+.preview-wrap { padding: 12px 18px; flex: 1; }
+.pcard { display: none; }
+.pcard.show { display: block; }
+.std-card { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.std-body { padding: 13px 15px; display: flex; gap: 12px; min-height: 66px; }
+.std-text { flex: 1; font-size: 12px; line-height: 1.45; color: #bbb; font-style: italic; }
+.no-img { width: 58px; height: 58px; background: #efefef; border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #bbb; }
+.std-ctas { display: flex; gap: 7px; padding: 3px 15px 12px; }
+.cta-btn { border: none; border-radius: 20px; padding: 6px 16px; font-size: 12px; font-weight: 600; cursor: pointer; background: var(--rokt); color: #fff; }
+.powered { text-align: right; font-size: 10px; color: #bbb; padding: 5px 14px 8px; border-top: 1px solid #f4f4f4; }
+/* Disclaimer strip inside preview card */
+.preview-disclaimer-strip { background: #f9f9f9; border-top: 1px solid var(--border); padding: 6px 14px; font-size: 10px; color: var(--text-light); display: none; }
+.preview-disclaimer-strip.show { display: block; }
+.preview-note { font-size: 11px; color: #bbb; text-align: center; padding: 6px 18px 12px; flex-shrink: 0; }
+
+/* ── BOTTOM BAR ── */
+.bottom-bar { display: flex; align-items: center; justify-content: space-between; padding: 11px 22px; border-top: 1px solid var(--border); background: var(--white); flex-shrink: 0; }
+.btn-prev { border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 18px; font-size: 13px; font-weight: 600; color: var(--text-mid); background: var(--white); cursor: pointer; }
+.bottom-right { display: flex; gap: 10px; }
+.btn-save { border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 18px; font-size: 13px; font-weight: 600; color: var(--text-mid); background: var(--white); cursor: pointer; }
+.btn-submit { border: none; border-radius: var(--radius); padding: 8px 22px; font-size: 13px; font-weight: 600; color: #fff; background: var(--rokt); cursor: pointer; }
+.btn-submit:disabled { opacity: .45; cursor: not-allowed; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<!-- ══ Create an Offer Modal ══ -->
+<div id="create-offer-backdrop" onclick="closeCreateOfferModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;"></div>
+<div id="create-offer-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:540px;max-width:95vw;background:#fff;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.18);z-index:201;padding:28px;">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+    <div>
+      <div style="font-size:17px;font-weight:700;color:var(--text-dark);margin-bottom:4px;">Create an Offer</div>
+      <div style="font-size:13px;color:var(--text-light);">Create an offer to link to this creative.</div>
+    </div>
+    <button onclick="closeCreateOfferModal()" style="background:none;border:none;cursor:pointer;padding:2px;color:#888;font-size:18px;line-height:1;">&#x2715;</button>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:14px;">
+    <div>
+      <label class="lbl" style="margin-bottom:4px;">Offer name <span style="color:#c0392b;">*</span></label>
+      <input class="inp" type="text" placeholder="Enter offer name">
+    </div>
+    <div>
+      <label class="lbl" style="margin-bottom:4px;">Offer description</label>
+      <input class="inp" type="text" placeholder="Enter offer description">
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:end;">
+      <div>
+        <label class="lbl" style="margin-bottom:4px;">Offer type <span style="color:#c0392b;">*</span></label>
+        <div style="position:relative;">
+          <select class="inp" style="appearance:none;padding-right:28px;cursor:pointer;color:var(--text-light);">
+            <option value="" disabled selected>Select an offer type</option>
+            <option>Discount</option><option>Cashback</option><option>Free trial</option><option>Gift</option>
+          </select>
+          <svg style="position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="#888" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div>
+        <label class="lbl" style="margin-bottom:4px;">Offer <span style="color:#c0392b;">*</span></label>
+        <div style="display:flex;align-items:center;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+          <span style="padding:0 10px;font-size:13px;color:var(--text-light);border-right:1px solid var(--border);background:#fafafa;">$</span>
+          <input style="border:none;outline:none;padding:8px 10px;font-size:13px;flex:1;width:0;" type="number" placeholder="0.00" min="0" step="0.01">
+        </div>
+      </div>
+      <div>
+        <label class="lbl" style="margin-bottom:4px;">Currency <span style="color:#c0392b;">*</span></label>
+        <div style="position:relative;">
+          <select class="inp" style="appearance:none;padding-right:28px;cursor:pointer;">
+            <option>AUD</option><option>USD</option><option>GBP</option><option>EUR</option>
+          </select>
+          <svg style="position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="#888" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div>
+          <label class="lbl" style="margin-bottom:4px;">Offer cost <span style="color:#c0392b;">*</span></label>
+          <div style="display:flex;align-items:center;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+            <span style="padding:0 10px;font-size:13px;color:var(--text-light);border-right:1px solid var(--border);background:#fafafa;">$</span>
+            <input style="border:none;outline:none;padding:8px 10px;font-size:13px;flex:1;width:0;" type="number" placeholder="Enter value" min="0" step="0.01">
+          </div>
+        </div>
+        <div>
+          <label class="lbl" style="margin-bottom:4px;">Average order value</label>
+          <div style="display:flex;align-items:center;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+            <span style="padding:0 10px;font-size:13px;color:var(--text-light);border-right:1px solid var(--border);background:#fafafa;">$</span>
+            <input style="border:none;outline:none;padding:8px 10px;font-size:13px;flex:1;width:0;" type="number" placeholder="Enter value" min="0" step="0.01">
+            <span style="padding:0 10px;color:#bbb;font-size:13px;cursor:default;" title="Average value of orders using this offer">&#x24D8;</span>
+          </div>
+        </div>
+      </div>
+      <div style="background:#f8f8f8;border:1px solid var(--border);border-radius:var(--radius);padding:14px;font-size:12px;color:var(--text-mid);line-height:1.55;">
+        <div style="display:flex;align-items:center;gap:6px;font-weight:600;margin-bottom:8px;font-size:13px;">
+          <span style="color:var(--rokt);">&#x2736;</span> Calculation Overview
+        </div>
+        <div><strong>Offer Cost:</strong> The total monetary value of the offer to the customer (e.g., $25 total savings). It represents the brand's opportunity cost.</div>
+        <div style="margin-top:8px;color:var(--text-light);">Example: If the monthly cost of a subscription is $19.99 and the offer is "2.99 for 3 months", the calculation for Offer Cost is: Discount Amount &times; Promotion Period = ($19.99&ndash;2.99) &times;3 months = $51</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:22px;border-top:1px solid var(--border);padding-top:16px;">
+    <button onclick="closeCreateOfferModal()" class="btn-save">Cancel</button>
+    <button class="btn-submit" style="opacity:.45;cursor:not-allowed;" disabled>Save and add to Creative</button>
+  </div>
+</div>
+
+<!-- ── TOP NAV ── -->
+<nav class="topnav">
+  <div class="nav-left">
+    <button class="back-btn">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 13L5 8l5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <span class="campaign-title">Traffic Campaign Test</span>
+    <span style="font-size:13px;opacity:.5;cursor:pointer;">&#x270F;&#xFE0F;</span>
+  </div>
+  <div class="stepper">
+    <div class="step">
+      <div class="step-badge done"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5l2.5 2.5 4.5-4.5" stroke="#2ea84c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="step-label">Campaign</span>
+    </div>
+    <div class="step-line done"></div>
+    <div class="step">
+      <div class="step-badge done"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5l2.5 2.5 4.5-4.5" stroke="#2ea84c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="step-label">Ad Sets</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step">
+      <div class="step-badge active">3</div>
+      <span class="step-label active">Creatives</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ── LAYOUT ── -->
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="search-bar">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="3.5" stroke="#bbb" stroke-width="1.4"/><path d="M8 8l2.5 2.5" stroke="#bbb" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span>Search...</span>
+      </div>
+    </div>
+    <div class="sidebar-row">
+      <button class="btn-add"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1v9M1 5.5h9" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg> Add</button>
+      <button class="btn-sort">Sort: Newest <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2.5 4l2.5 2.5L7.5 4" stroke="#888" stroke-width="1.4" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="creative-list">
+      <div class="c-item active" onclick="selectCreative(this)">
+        <div class="c-dot pink"></div>
+        <div><div class="c-name">New Creative</div><div class="c-id">3565617340429762560</div></div>
+      </div>
+      <div class="c-item" onclick="selectCreative(this)">
+        <div class="c-dot gray"></div>
+        <div><div class="c-name">New Creative</div><div class="c-id">3565617327554166784</div></div>
+      </div>
+      <div class="c-item" onclick="selectCreative(this)">
+        <div class="c-dot gray"></div>
+        <div><div class="c-name">New Creative</div><div class="c-id">3565282831196880896</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <!-- FORM -->
+    <div class="form-col">
+      <div class="form-header">
+        <span class="form-title">New Creative</span>
+        <div class="draft-badge"><span style="color:#ccc">&bull;</span><div class="draft-dot"></div><span>Draft</span></div>
+      </div>
+
+      <div class="form-body">
+        <!-- Name + Format -->
+        <div class="field-row">
+          <div class="field">
+            <label class="lbl">Creative name <span class="req">*</span></label>
+            <input class="inp" type="text" value="New Creative">
+          </div>
+          <div class="field">
+            <label class="lbl">Format Targeting <span class="req">*</span></label>
+            <div style="position:relative;">
+              <div style="display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;cursor:pointer;font-size:13px;">
+                Dynamic (Standard, Block, Tile)
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5l3 3 3-3" stroke="#888" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Title -->
+        <div class="field">
+          <label class="lbl">Creative Title (5&ndash;50 characters) <span class="req">*</span></label>
+          <div class="inp-wrap">
+            <input class="inp" type="text" placeholder="Enter a creative title" style="padding-right:44px;" id="inp-title" oninput="updatePreview()" onfocus="prefillFields()">
+            <span class="inp-counter" id="title-counter">0/50</span>
+          </div>
+        </div>
+
+        <!-- Body -->
+        <div class="field">
+          <div class="lbl-row">
+            <label class="lbl" style="margin-bottom:0;">Creative Body</label>
+            <button class="insert-attr">Insert Attribute <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1.5v8M1.5 5.5h8" stroke="var(--rokt)" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+          </div>
+          <div style="margin-top:5px;position:relative;">
+            <textarea class="txta" placeholder="" id="inp-body" oninput="updatePreview()" onfocus="prefillFields()"></textarea>
+            <span style="position:absolute;right:10px;bottom:8px;font-size:11px;color:var(--text-light);pointer-events:none;" id="body-counter">0/175</span>
+          </div>
+        </div>
+        <div class="total-char" id="total-char-row" style="margin-top:-10px;">Total character count: 0 / 175</div>
+
+        <!-- CTA -->
+        <div class="field">
+          <label class="lbl">Positive CTA <span class="req">*</span></label>
+          <div class="cta-inp-wrap"><span class="cta-emoji">&#x1F44D;</span><input class="inp with-emoji" type="text" value="Yes please" id="inp-cta" oninput="updatePreview()" onfocus="prefillFields()"></div>
+        </div>
+
+        <!-- URL -->
+        <div class="field">
+          <label class="lbl">CTA URL <span class="req">*</span></label>
+          <div class="url-row"><input class="inp" type="text" placeholder="https://example.com" id="inp-url" onfocus="prefillFields()"><button class="btn-outline">Add URL Parameters</button></div>
+        </div>
+
+        <!-- Image -->
+        <div class="field">
+          <label class="lbl">Creative Image <span class="req">*</span></label>
+
+          <!-- Empty state -->
+          <div id="image-empty" class="upload-zone" onclick="prefillFields()">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="#d8d8d8" stroke-width="1.5"/><path d="M10 18l4-4 3 3 3-4 4 5" stroke="#d0d0d0" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2" fill="#d0d0d0"/></svg>
+            <div class="upload-title">No images assigned yet</div>
+            <div class="upload-desc">Upload or choose from your asset library.</div>
+            <button class="btn-upload"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1.5v8M1.5 5.5h8" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg> Select or Upload Images</button>
+          </div>
+
+          <!-- Filled state -->
+          <div id="image-filled" style="display:none;">
+            <div class="link-table">
+              <div style="display:flex;align-items:center;padding:7px 12px;background:var(--bg);border-bottom:1px solid var(--border);">
+                <span style="flex:1;font-size:12px;font-weight:600;color:var(--text-mid);">Name</span>
+                <span style="font-size:12px;font-weight:600;color:var(--text-mid);margin-right:36px;">Image properties</span>
+              </div>
+              <div class="link-table-row" style="gap:12px;">
+                <span style="display:flex;align-items:center;gap:10px;flex:1;">
+                  <img src="https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=80&h=60&fit=crop&auto=format" alt="Soupe de Courge crémeuse" style="width:56px;height:42px;border-radius:5px;object-fit:cover;flex-shrink:0;">
+                  <span style="font-size:13px;color:var(--text);">Soupe de Courge cr&eacute;meuse</span>
+                </span>
+                <span style="font-size:13px;color:var(--text-light);flex-shrink:0;">Product, 1.91:1</span>
+                <button onclick="removeImage()" style="width:26px;height:26px;border:none;background:none;cursor:pointer;color:#aaa;font-size:18px;line-height:1;flex-shrink:0;display:flex;align-items:center;justify-content:center;" title="Remove">&#x2296;</button>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:center;margin-top:10px;">
+              <button class="btn-upload"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1.5v8M1.5 5.5h8" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg> Select or Upload Images</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="field">
+          <label class="lbl">Disclaimer</label>
+          <textarea class="txta" placeholder="Eligible customers only." style="height:64px;padding-bottom:8px;"></textarea>
+          <div class="field-hint">Add a short legal message that appears with the creative.</div>
+        </div>
+
+        <!-- Callout Tags -->
+        <div class="field">
+          <label class="lbl">Add Callout Tag(s)</label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <div style="width:30px;height:30px;border:1.5px dashed #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--white);">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 2v9M2 6.5h9" stroke="#aaa" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Link Ad Sets -->
+        <div class="section-divider"></div>
+        <div class="collapsible-section" id="sec-aud">
+          <button class="collapsible-hdr" onclick="this.closest('.collapsible-section').classList.toggle('collapsed')">
+            <span class="collapsible-title">Link Ad Sets</span>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#888" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+          <div class="collapsible-body">
+            <!-- Ad Set search trigger -->
+            <div style="position:relative;">
+              <div class="adset-trigger" id="adset-trigger" onclick="toggleAdsetDropdown()">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="#bbb" stroke-width="1.4"/><path d="M9 9l2.5 2.5" stroke="#bbb" stroke-width="1.4" stroke-linecap="round"/></svg>
+                <input class="search-inp" style="border:none;padding:0;cursor:pointer;font-size:13px;flex:1;" type="text" placeholder="Search for an ad set to link" id="adset-search-inp" onfocus="openAdsetDropdown()" onblur="scheduleCloseAdset()">
+              </div>
+              <div class="offer-dropdown-menu" id="adset-menu" style="display:none;">
+                <div class="adset-menu-item" onclick="delegateCb('adset-cb-all')">
+                  <input type="checkbox" id="adset-cb-all" onclick="event.stopPropagation()" onchange="adsetCbChange('__all__',this)"> <span>Select All</span>
+                </div>
+                <div class="adset-menu-item" onclick="delegateCb('adset-cb-0')">
+                  <input type="checkbox" id="adset-cb-0" onclick="event.stopPropagation()" onchange="adsetCbChange('New Audience',this)"> <span>New Audience</span>
+                </div>
+                <div class="adset-menu-item" onclick="delegateCb('adset-cb-1')">
+                  <input type="checkbox" id="adset-cb-1" onclick="event.stopPropagation()" onchange="adsetCbChange('New Audience 2',this)"> <span>New Audience 2</span>
+                </div>
+              </div>
+            </div>
+            <!-- Linked ad sets table -->
+            <div class="link-table" id="adset-table" style="margin-top:8px;">
+              <div class="link-table-hdr">Ad Sets</div>
+              <div id="adset-linked-rows"></div>
+              <div id="adset-empty-row" class="link-table-empty">No ad sets linked</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Link Offers -->
+        <div class="section-divider"></div>
+        <div class="collapsible-section" id="sec-offers">
+          <button class="collapsible-hdr" onclick="this.closest('.collapsible-section').classList.toggle('collapsed')">
+            <span class="collapsible-title">Link Offers</span>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#888" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+          <div class="collapsible-body">
+
+            <!-- Custom offer dropdown -->
+            <div style="position:relative;" id="offer-dropdown-wrap">
+              <div class="offer-select-trigger" id="offer-trigger" onclick="toggleOfferDropdown()">
+                <span id="offer-trigger-label">Search or select an offer</span>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="#888" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+              <div class="offer-dropdown-menu" id="offer-menu" style="display:none;">
+                <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);">
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="#bbb" stroke-width="1.4"/><path d="M9 9l2.5 2.5" stroke="#bbb" stroke-width="1.4" stroke-linecap="round"/></svg>
+                  <input class="search-inp" style="border:none;padding:0;font-size:13px;" type="text" placeholder="Search offers&hellip;" id="offer-search-inp">
+                </div>
+                <div class="offer-menu-item" onclick="selectOffer('Summer Sale \u2014 20% off','356530301325338214')">Summer Sale &mdash; 20% off</div>
+                <div class="offer-menu-item" onclick="selectOffer('Loyalty Rewards Offer','355857373301547048')">Loyalty Rewards Offer</div>
+                <div class="offer-menu-item" onclick="selectOffer('TEST','355857373770154704')">TEST</div>
+                <div style="padding:9px 12px;border-top:1px solid var(--border);">
+                  <a href="#" onclick="openCreateOfferModal(event)" style="color:var(--rokt);font-size:13px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:5px;">
+                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1.5v8M1.5 5.5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    Create new offer
+                  </a>
+                </div>
+              </div>
+              <div id="offer-overlay" onclick="closeOfferDropdown()" style="display:none;position:fixed;inset:0;z-index:49;"></div>
+            </div>
+
+            <div class="field-hint" style="margin-top:6px;">Select offers or create an offer to link to this creative. You can only link one offer to each Creative.</div>
+
+            <!-- No-offer checkbox -->
+            <label class="checkbox-opt" style="margin-top:10px;" id="no-offer-label">
+              <input type="checkbox" id="no-offer-cb" onchange="toggleNoOfferCb(this)">
+              <div>
+                <div style="font-size:13px;font-weight:500;">This creative does not have an offer</div>
+                <div class="field-hint">Choose this only if the creative <a href="#" style="color:var(--rokt);">does not include a promotion or incentive</a>. You cannot change this selection once the creative is published.</div>
+              </div>
+            </label>
+
+            <!-- Offer Overview -->
+            <div class="offer-overview" style="margin-top:12px;">
+              <div class="offer-overview-hdr">Offer Overview</div>
+              <div id="offer-overview-row" style="display:none;padding:12px;align-items:center;justify-content:space-between;font-size:13px;border-top:1px solid var(--border);">
+                <span><strong id="offer-overview-name"></strong>&nbsp;&nbsp;<span style="color:var(--text-light);">ID: <span id="offer-overview-id"></span></span></span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="4" r="1" fill="#888"/><circle cx="8" cy="8" r="1" fill="#888"/><circle cx="8" cy="12" r="1" fill="#888"/></svg>
+              </div>
+              <div id="offer-overview-empty" style="padding:18px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--text-mid);">
+                <svg width="20" height="20" viewBox="0 0 22 22" fill="none"><path d="M11 2L2 19h18L11 2z" fill="#f5a623" stroke="#f5a623" stroke-width=".5"/><path d="M11 9v5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="11" cy="16.5" r="1" fill="#fff"/></svg> No offer selected
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════
+             MORE OPTIONS (moved here from above)
+        ════════════════════════════════ -->
+        <div class="section-divider"></div>
+        <div class="collapsible-section collapsed" id="sec-optional">
+          <button class="collapsible-hdr" onclick="this.closest('.collapsible-section').classList.toggle('collapsed')">
+            <span class="collapsible-title">More Options <span style="font-weight:400;color:var(--text-light)">(optional)</span></span>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#888" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+          <div class="collapsible-body">
+            <!-- Coupons — unified reactive -->
+            <div class="option-group">
+              <div class="option-label">Coupons</div>
+              <div class="radio-row">
+                <label class="radio-opt"><input type="radio" name="coupons" value="yes" onchange="updateState()"> Yes</label>
+                <label class="radio-opt"><input type="radio" name="coupons" value="no" checked onchange="updateState()"> No</label>
+              </div>
+              <div id="coupon-fields" style="margin-top:10px;display:none;grid-template-columns:1fr 1fr;gap:12px;">
+                <div>
+                  <div class="lbl" style="margin-bottom:4px;">Coupon Code</div>
+                  <div style="position:relative;">
+                    <select class="inp" id="coupon-select" style="appearance:none;padding-right:28px;cursor:pointer;" onchange="couponCodeChosen = (this.value !== ''); updateState()">
+                      <option value="">Select coupon&hellip;</option>
+                      <option>Test Coupon</option>
+                      <option>Summer Sale 20%</option>
+                      <option>VIP Discount</option>
+                    </select>
+                    <svg style="position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="#888" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  </div>
+                </div>
+                <div>
+                  <div class="lbl" style="margin-bottom:4px;">Promotion value</div>
+                  <input class="inp" type="text" placeholder="e.g. 20%">
+                </div>
+              </div>
+              <div class="field-hint" style="margin-top:6px;">Does the offer require sending a coupon code with a Rokt nurture journey?</div>
+            </div>
+            <div class="option-group">
+              <div class="option-label">Brand Domains</div>
+              <div class="radio-row">
+                <label class="radio-opt"><input type="radio" name="bd" value="yes"> Yes</label>
+                <label class="radio-opt"><input type="radio" name="bd" value="no" checked> No</label>
+              </div>
+              <div class="field-hint">Do you want to include any brand domains?</div>
+            </div>
+            <div class="option-group">
+              <div class="option-label">Schedule</div>
+              <div class="radio-row">
+                <label class="radio-opt"><input type="radio" name="sched" value="cont" checked> Run Continuously</label>
+                <label class="radio-opt"><input type="radio" name="sched" value="dates"> Set a start and end</label>
+              </div>
+            </div>
+
+            <!-- Link Nurture Journey — inline, same style as Coupons -->
+            <div class="option-group" style="border-bottom:none;padding-bottom:0;">
+              <div class="option-label">Link Nurture Journey</div>
+              <div class="field-hint" style="margin-bottom:6px;">A disclaimer will be automatically added to the creative when a nurture journey is linked.</div>
+
+              <!-- BLOCKED: no offer linked -->
+              <div id="nurture-blocked-panel" style="margin-top:4px;">
+                <div class="field-hint">Link an offer in the <strong>Link Offers</strong> section to enable.</div>
+              </div>
+
+              <!-- AVAILABLE: offer linked -->
+              <div id="nurture-available-panel" style="display:none;margin-top:6px;">
+                <div style="position:relative;">
+                  <div class="adset-trigger" id="nurture-trigger" onclick="toggleNurtureDD()">
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="#bbb" stroke-width="1.4"/><path d="M9 9l2.5 2.5" stroke="#bbb" stroke-width="1.4" stroke-linecap="round"/></svg>
+                    <input class="search-inp" style="border:none;padding:0;cursor:pointer;font-size:13px;flex:1;" type="text" placeholder="Search for a nurture journey to link" id="nurture-search-inp" onfocus="openNurtureDD()" onblur="scheduleCloseNurtureDD()">
+                  </div>
+                  <div class="offer-dropdown-menu" id="nurture-menu" style="display:none;">
+                    <div class="adset-menu-item" onclick="delegateCb('nurture-cb-all')">
+                      <input type="checkbox" id="nurture-cb-all" onclick="event.stopPropagation()" onchange="nurtureCbChange('__all__',this)"> <span>Select All</span>
+                    </div>
+                    <div class="adset-menu-item" onclick="delegateCb('nurture-cb-0')">
+                      <input type="checkbox" id="nurture-cb-0" onclick="event.stopPropagation()" onchange="nurtureCbChange('Summer Sale CCE Journey',this)"> <span>Summer Sale CCE Journey</span>
+                    </div>
+                    <div class="adset-menu-item" onclick="delegateCb('nurture-cb-1')">
+                      <input type="checkbox" id="nurture-cb-1" onclick="event.stopPropagation()" onchange="nurtureCbChange('Loyalty Confirmation Journey',this)"> <span>Loyalty Confirmation Journey</span>
+                    </div>
+                    <div class="adset-menu-item" onclick="delegateCb('nurture-cb-2')">
+                      <input type="checkbox" id="nurture-cb-2" onclick="event.stopPropagation()" onchange="nurtureCbChange('Spring Promo Journey',this)"> <span>Spring Promo Journey</span>
+                    </div>
+                    <div style="padding:9px 12px;border-top:1px solid var(--border);">
+                      <a href="https://my.rokt.com/nurture" target="_blank" onclick="openNurtureTab(event)" style="color:var(--rokt);font-size:13px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:5px;">
+                        <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1.5v8M1.5 5.5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        Create a nurture journey
+                      </a>
+                    </div>
+                  </div>
+                  <div id="nurture-overlay" onclick="closeNurtureDD()" style="display:none;position:fixed;inset:0;z-index:49;"></div>
+                </div>
+                <div class="link-table" style="margin-top:8px;">
+                  <div class="link-table-hdr">Nurture Journeys</div>
+                  <div id="nurture-linked-rows"></div>
+                  <div id="nurture-empty-row" class="link-table-empty">No journeys linked</div>
+                </div>
+                <div id="nurture-ab-hint" class="field-hint" style="display:none;margin-top:6px;">When multiple journeys are selected, traffic is split equally between them as an A/B test.</div>
+                <div id="nurture-journey-error" class="banner error" style="display:none;margin-top:8px;">
+                  <svg class="banner-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="var(--red)"/><path d="M7 4v4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="10" r="1" fill="#fff"/></svg>
+                  <span>A journey must be linked &mdash; the coupon cannot be delivered without one.</span>
+                </div>
+              </div>
+
+              <!-- ── VARIANT 1: Small checkbox ── -->
+              <div id="cce-v1" style="display:none;margin-top:12px;">
+                <!-- editable -->
+                <div id="cce-v1-editable">
+                  <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;">
+                    <input type="checkbox" id="cce-v1-toggle" checked style="margin-top:2px;width:14px;height:14px;accent-color:var(--rokt);cursor:pointer;flex-shrink:0;">
+                    <div>
+                      <span style="font-size:13px;font-weight:500;color:var(--text);">CCE Required</span>
+                      <div class="field-hint" style="margin-top:2px;">When checked, the creative will not serve on partners that do not pass email or have CCE disabled. Uncheck to make optional — creative stays eligible and CCE sends when the partner supports it.</div>
+                    </div>
+                  </label>
+                </div>
+                <!-- locked -->
+                <div id="cce-v1-locked" style="display:none;">
+                  <label style="display:flex;align-items:flex-start;gap:8px;cursor:not-allowed;opacity:0.5;">
+                    <input type="checkbox" checked disabled style="margin-top:2px;width:14px;height:14px;accent-color:var(--rokt);flex-shrink:0;">
+                    <div>
+                      <span style="font-size:13px;font-weight:500;color:var(--text-light);">CCE Required</span>
+                      <div class="field-hint" style="margin-top:2px;">A coupon is linked, so CCE is required. The creative will not serve on partners that do not pass email or have CCE disabled.</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- hidden placeholders so existing JS IDs still resolve -->
+              <div id="cce-editable-row" style="display:none;"></div>
+              <div id="cce-locked-row" style="display:none;"></div>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- /form-body -->
+    </div><!-- /form-col -->
+
+    <div class="vdivider"></div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+      <div class="score-header">
+        <div class="score-left"><div class="score-ring">--</div><span class="score-title">Creative Optimization Score</span></div>
+        <button class="view-actions">View Actions</button>
+      </div>
+      <div class="preview-tabs">
+        <button class="ptab active" onclick="switchTab('std',this)">Standard</button>
+        <button class="ptab" onclick="switchTab('blk',this)">Block</button>
+        <button class="ptab" onclick="switchTab('tile',this)">Tile</button>
+        <button class="ptab" onclick="switchTab('hero',this)">Hero</button>
+      </div>
+      <div class="preview-wrap">
+        <div class="pcard show" id="pcard-std">
+          <div class="std-card">
+            <div class="std-body">
+              <div class="std-text" id="prev-std-text">Add title and copy to see preview</div>
+              <div class="no-img">No image</div>
+            </div>
+            <div class="std-ctas">
+              <button class="cta-btn" id="prev-std-cta">Yes please</button>
+              <button class="cta-btn" style="background:#eee;color:#555;">Decline</button>
+            </div>
+            <div class="powered">Powered By Rokt &ndash; <a href="#" style="color:#bbb;text-decoration:none;">Privacy Policy</a></div>
+            <div class="preview-disclaimer-strip" id="preview-disc-std">
+              &#x2709;&#xFE0F; By clicking you agree to receive a confirmation email.
+            </div>
+          </div>
+        </div>
+        <div class="pcard" id="pcard-blk">
+          <div class="std-card">
+            <div class="std-body" style="align-items:center;min-height:auto;padding:12px 14px;">
+              <div class="no-img" style="width:48px;height:48px;"></div>
+              <div class="std-text" id="prev-blk-text" style="margin:0 10px;">Add title and copy to see preview</div>
+              <button class="cta-btn" id="prev-blk-cta" style="flex-shrink:0;">Yes please</button>
+            </div>
+            <div class="powered">Powered By Rokt &ndash; <a href="#" style="color:#bbb;text-decoration:none;">Privacy Policy</a></div>
+            <div class="preview-disclaimer-strip" id="preview-disc-blk">&#x2709;&#xFE0F; By clicking you agree to receive a confirmation email.</div>
+          </div>
+        </div>
+        <div class="pcard" id="pcard-tile">
+          <div class="std-card" style="max-width:160px;margin:0 auto;">
+            <div class="no-img" style="width:100%;height:90px;border-radius:0;"></div>
+            <div style="padding:10px;">
+              <div class="std-text" id="prev-tile-text" style="font-size:11px;margin-bottom:8px;">Add title to see preview</div>
+              <button class="cta-btn" id="prev-tile-cta" style="width:100%;border-radius:16px;padding:5px 0;font-size:11px;">Yes please</button>
+            </div>
+            <div class="powered" style="font-size:9px;text-align:center;">Powered By Rokt &ndash; Privacy Policy</div>
+            <div class="preview-disclaimer-strip" id="preview-disc-tile" style="font-size:9px;">&#x2709;&#xFE0F; Confirmation email on engage.</div>
+          </div>
+        </div>
+        <div class="pcard" id="pcard-hero">
+          <div class="std-card">
+            <div style="background:#f5f5f5;padding:9px 13px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);"><span style="font-size:12px;font-weight:600;">Purchase complete. Order #: 12345678</span><button style="background:none;border:none;font-size:16px;color:#888;cursor:pointer;">&times;</button></div>
+            <div style="padding:11px 13px;"><div style="font-size:12px;color:#555;margin-bottom:8px;">Thank you for your purchase:</div><div style="border:1px solid var(--border);border-radius:6px;height:90px;display:flex;align-items:center;justify-content:center;"><span class="std-text" id="prev-hero-text">Add title and copy to see preview</span></div></div>
+            <div style="padding:8px 13px;border-top:1px solid #f4f4f4;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:10px;color:#bbb;">Powered By Rokt</span><button class="cta-btn" id="prev-hero-cta" style="font-size:11px;padding:5px 14px;border-radius:16px;">Yes please</button></div>
+            <div class="preview-disclaimer-strip" id="preview-disc-hero">&#x2709;&#xFE0F; By clicking you agree to receive a confirmation email.</div>
+          </div>
+        </div>
+      </div>
+      <p class="preview-note">The exact layout of the ad is dependent on the site it is showing on and is liable to change</p>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <button class="btn-prev">Previous</button>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <span id="bar-coupon-err" style="display:none;color:var(--rokt);font-size:13px;font-weight:500;">Please select a coupon</span>
+    <span id="bar-nurture-err" style="display:none;color:var(--rokt);font-size:13px;font-weight:500;">Please link a nurture journey</span>
+    <button class="btn-save">Save and Exit</button>
+    <button class="btn-submit" id="submit-btn" onclick="handleSubmit()">Submit</button>
+  </div>
+</div>
+
+<script>
+  // ─────────────────────────────────────────────
+  // State
+  // ─────────────────────────────────────────────
+  var hasCoupon = false;       // coupons radio = yes
+  var couponCodeChosen = false; // a specific coupon code has been picked
+  var hasRealOffer = false;    // offer selected AND no-offer not ticked
+
+  // ─────────────────────────────────────────────
+  // Reactive state engine
+  // ─────────────────────────────────────────────
+  function updateState() {
+    var radios = document.querySelectorAll('input[name="coupons"]');
+    var prevCoupon = hasCoupon;
+    hasCoupon = false;
+    radios.forEach(function(r) { if (r.checked && r.value === 'yes') hasCoupon = true; });
+
+    // Reset coupon code selection whenever the radio changes
+    if (prevCoupon !== hasCoupon) couponCodeChosen = false;
+    if (!hasCoupon) couponCodeChosen = false;
+
+    // Show/hide coupon fields
+    var cf = document.getElementById('coupon-fields');
+    if (cf) cf.style.display = hasCoupon ? 'grid' : 'none';
+
+    // Preview disclaimer strip: show when nurture available (real offer linked)
+    var showDisc = hasRealOffer;
+    ['std','blk','tile','hero'].forEach(function(id) {
+      var el = document.getElementById('preview-disc-' + id);
+      if (el) el.classList.toggle('show', showDisc);
+    });
+
+    updateNurtureSection();
+    updateBarErrors();
+  }
+
+  function updateBarErrors() {
+    var couponErr  = document.getElementById('bar-coupon-err');
+    var nurtureErr = document.getElementById('bar-nurture-err');
+
+    // Step 1: coupon radio = yes but no code picked yet
+    var couponMissing  = hasCoupon && !couponCodeChosen;
+    // Step 2: code picked but no journey linked (only shown after step 1 resolved)
+    var nurtureMissing = hasCoupon && couponCodeChosen && linkedNurture.length === 0;
+
+    if (couponErr)  couponErr.style.display  = couponMissing  ? 'inline' : 'none';
+    if (nurtureErr) nurtureErr.style.display = nurtureMissing ? 'inline' : 'none';
+  }
+
+  function updateNurtureSection() {
+    var blockedPanel = document.getElementById('nurture-blocked-panel');
+    var availablePanel = document.getElementById('nurture-available-panel');
+    // Offer-dependent: search/table panel
+    if (!hasRealOffer) {
+      blockedPanel.style.display = 'block';
+      availablePanel.style.display = 'none';
+      linkedNurture = [];
+      renderNurtureRows();
+      updateBarErrors();
+    } else {
+      blockedPanel.style.display = 'none';
+      availablePanel.style.display = 'block';
+    }
+
+    // CCE rows: delegated to variant-aware helper
+    updateCCERows();
+
+    // Clear journey error on state change
+    var err = document.getElementById('nurture-journey-error');
+    if (err) err.style.display = 'none';
+  }
+
+  // Shows editable or locked CCE checkbox based on offer/nurture/coupon state.
+  function updateCCERows() {
+    var showCCE  = hasRealOffer && linkedNurture.length > 0;
+    var outer    = document.getElementById('cce-v1');
+    var editable = document.getElementById('cce-v1-editable');
+    var locked   = document.getElementById('cce-v1-locked');
+    if (!outer) return;
+
+    if (!showCCE) {
+      outer.style.display = 'none';
+      return;
+    }
+
+    outer.style.display = 'block';
+    if (hasCoupon) {
+      if (editable) editable.style.display = 'none';
+      if (locked)   locked.style.display   = 'block';
+    } else {
+      if (locked)   locked.style.display   = 'none';
+      if (editable) editable.style.display = 'block';
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // Sidebar creative selection
+  // ─────────────────────────────────────────────
+  function selectCreative(el) {
+    document.querySelectorAll('.c-item').forEach(function(i) { i.classList.remove('active'); });
+    el.classList.add('active');
+  }
+
+  // ─────────────────────────────────────────────
+  // Preview live update
+  // ─────────────────────────────────────────────
+  var prefilled = false;
+  function prefillFields() {
+    if (prefilled) return;
+    prefilled = true;
+    var title = document.getElementById('inp-title');
+    var body  = document.getElementById('inp-body');
+    var cta   = document.getElementById('inp-cta');
+    var url   = document.getElementById('inp-url');
+    if (title) title.value = 'Exclusive offer just for you';
+    if (body)  body.value  = 'Enjoy 20% off your next purchase — limited time only. Don\'t miss out on this exclusive summer deal.';
+    if (cta)   cta.value   = 'Claim my offer';
+    if (url)   url.value   = 'https://summer-sale.example.com/offer';
+    // Switch image to filled state
+    var imgEmpty  = document.getElementById('image-empty');
+    var imgFilled = document.getElementById('image-filled');
+    if (imgEmpty)  imgEmpty.style.display  = 'none';
+    if (imgFilled) imgFilled.style.display = 'block';
+    updatePreview();
+  }
+
+  function removeImage() {
+    document.getElementById('image-filled').style.display = 'none';
+    document.getElementById('image-empty').style.display  = 'flex';
+  }
+
+  function updatePreview() {
+    var title = document.getElementById('inp-title').value;
+    var body = document.getElementById('inp-body').value;
+    var cta = document.getElementById('inp-cta').value || 'Yes please';
+
+    var titleLen = title.length;
+    var bodyLen = body.length;
+    document.getElementById('title-counter').textContent = titleLen + '/50';
+    document.getElementById('body-counter').textContent = bodyLen + '/175';
+    document.getElementById('total-char-row').textContent = 'Total character count: ' + (titleLen + bodyLen) + ' / 175';
+
+    var previewText = title ? (title + (body ? ' — ' + body : '')) : (body || null);
+    var placeholder = 'Add title and copy to see preview';
+
+    ['std','blk','hero'].forEach(function(id) {
+      var el = document.getElementById('prev-' + id + '-text');
+      if (el) {
+        el.textContent = previewText || placeholder;
+        el.style.fontStyle = previewText ? 'normal' : 'italic';
+        el.style.color = previewText ? 'var(--text)' : '#bbb';
+      }
+    });
+    var tileEl = document.getElementById('prev-tile-text');
+    if (tileEl) {
+      tileEl.textContent = title || 'Add title to see preview';
+      tileEl.style.fontStyle = title ? 'normal' : 'italic';
+      tileEl.style.color = title ? 'var(--text)' : '#bbb';
+    }
+
+    ['std','blk','tile','hero'].forEach(function(id) {
+      var el = document.getElementById('prev-' + id + '-cta');
+      if (el) el.textContent = cta;
+    });
+  }
+
+  // ─────────────────────────────────────────────
+  // Offer modal
+  // ─────────────────────────────────────────────
+  function openCreateOfferModal(e) {
+    e.preventDefault();
+    closeOfferDropdown();
+    document.getElementById('create-offer-modal').style.display = 'block';
+    document.getElementById('create-offer-backdrop').style.display = 'block';
+  }
+  function closeCreateOfferModal() {
+    document.getElementById('create-offer-modal').style.display = 'none';
+    document.getElementById('create-offer-backdrop').style.display = 'none';
+  }
+
+  // ─────────────────────────────────────────────
+  // Nurture tab link
+  // ─────────────────────────────────────────────
+  function openNurtureTab(e) {
+    e.preventDefault();
+    window.open('https://my.rokt.com/nurture', '_blank');
+  }
+
+  // ─────────────────────────────────────────────
+  // Shared helper: delegate click to checkbox
+  // ─────────────────────────────────────────────
+  function delegateCb(cbId) {
+    var cb = document.getElementById(cbId);
+    if (cb) { cb.checked = !cb.checked; cb.dispatchEvent(new Event('change')); }
+  }
+
+  // ─────────────────────────────────────────────
+  // Ad Set dropdown
+  // ─────────────────────────────────────────────
+  var linkedAdsets = [];
+  var adsetCbMap = { 'adset-cb-0': 'New Audience', 'adset-cb-1': 'New Audience 2' };
+
+  function toggleAdsetDropdown() {
+    var menu = document.getElementById('adset-menu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    if (menu.style.display === 'block') document.getElementById('adset-search-inp').focus();
+  }
+  function openAdsetDropdown() {
+    document.getElementById('adset-menu').style.display = 'block';
+  }
+  function scheduleCloseAdset() {
+    setTimeout(function() { document.getElementById('adset-menu').style.display = 'none'; }, 200);
+  }
+  function adsetCbChange(name, cb) {
+    if (name === '__all__') {
+      Object.keys(adsetCbMap).forEach(function(id) {
+        var n = adsetCbMap[id];
+        var c = document.getElementById(id);
+        if (!c) return;
+        c.checked = cb.checked;
+        if (cb.checked && linkedAdsets.indexOf(n) === -1) linkedAdsets.push(n);
+        else if (!cb.checked) linkedAdsets = linkedAdsets.filter(function(x) { return x !== n; });
+      });
+    } else {
+      if (cb.checked && linkedAdsets.indexOf(name) === -1) linkedAdsets.push(name);
+      else linkedAdsets = linkedAdsets.filter(function(x) { return x !== name; });
+      var allChecked = Object.keys(adsetCbMap).every(function(id) { return document.getElementById(id) && document.getElementById(id).checked; });
+      document.getElementById('adset-cb-all').checked = allChecked;
+    }
+    renderAdsetRows();
+  }
+  function renderAdsetRows() {
+    var container = document.getElementById('adset-linked-rows');
+    var empty = document.getElementById('adset-empty-row');
+    container.innerHTML = linkedAdsets.map(function(name) {
+      return '<div class="link-table-row">' +
+        '<span style="display:flex;align-items:center;gap:8px;">' + name + ' <span class="adset-badge">Archived</span></span>' +
+        '<button class="adset-unlink-btn" onclick="unlinkAdset(\'' + name + '\')" title="Unlink">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 9l-1.5 1.5a2 2 0 01-2.83-2.83L2 7.33M9 5l1.5-1.5a2 2 0 012.83 2.83L12 7M5.5 8.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>' +
+        '</button></div>';
+    }).join('');
+    empty.style.display = linkedAdsets.length ? 'none' : 'block';
+  }
+  function unlinkAdset(name) {
+    linkedAdsets = linkedAdsets.filter(function(x) { return x !== name; });
+    Object.keys(adsetCbMap).forEach(function(id) {
+      if (adsetCbMap[id] === name) { var c = document.getElementById(id); if (c) c.checked = false; }
+    });
+    document.getElementById('adset-cb-all').checked = false;
+    renderAdsetRows();
+  }
+
+  // ─────────────────────────────────────────────
+  // Nurture dropdown (single unified instance)
+  // ─────────────────────────────────────────────
+  var linkedNurture = [];
+  var nurtureCbMap = {
+    'nurture-cb-0': 'Summer Sale CCE Journey',
+    'nurture-cb-1': 'Loyalty Confirmation Journey',
+    'nurture-cb-2': 'Spring Promo Journey'
+  };
+
+  function toggleNurtureDD() {
+    var menu = document.getElementById('nurture-menu');
+    var overlay = document.getElementById('nurture-overlay');
+    var open = menu.style.display === 'none';
+    menu.style.display = open ? 'block' : 'none';
+    if (overlay) overlay.style.display = open ? 'block' : 'none';
+    if (open) document.getElementById('nurture-search-inp').focus();
+  }
+  function openNurtureDD() {
+    document.getElementById('nurture-menu').style.display = 'block';
+    var overlay = document.getElementById('nurture-overlay');
+    if (overlay) overlay.style.display = 'block';
+  }
+  function closeNurtureDD() {
+    document.getElementById('nurture-menu').style.display = 'none';
+    var overlay = document.getElementById('nurture-overlay');
+    if (overlay) overlay.style.display = 'none';
+  }
+  function scheduleCloseNurtureDD() { setTimeout(closeNurtureDD, 200); }
+
+  function nurtureCbChange(name, cb) {
+    if (name === '__all__') {
+      Object.keys(nurtureCbMap).forEach(function(id) {
+        var n = nurtureCbMap[id];
+        var c = document.getElementById(id);
+        if (!c) return;
+        c.checked = cb.checked;
+        if (cb.checked && linkedNurture.indexOf(n) === -1) linkedNurture.push(n);
+        else if (!cb.checked) linkedNurture = linkedNurture.filter(function(x) { return x !== n; });
+      });
+    } else {
+      if (cb.checked && linkedNurture.indexOf(name) === -1) linkedNurture.push(name);
+      else linkedNurture = linkedNurture.filter(function(x) { return x !== name; });
+      var allChecked = Object.keys(nurtureCbMap).every(function(id) { return document.getElementById(id) && document.getElementById(id).checked; });
+      var allCb = document.getElementById('nurture-cb-all');
+      if (allCb) allCb.checked = allChecked;
+    }
+    renderNurtureRows();
+    updateBarErrors();
+  }
+
+  function renderNurtureRows() {
+    var container = document.getElementById('nurture-linked-rows');
+    var empty = document.getElementById('nurture-empty-row');
+    if (!container) return;
+    container.innerHTML = linkedNurture.map(function(name) {
+      return '<div class="link-table-row">' +
+        '<span>' + name + '</span>' +
+        '<button class="adset-unlink-btn" onclick="unlinkNurture(\'' + name + '\')" title="Unlink">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 9l-1.5 1.5a2 2 0 01-2.83-2.83L2 7.33M9 5l1.5-1.5a2 2 0 012.83 2.83L12 7M5.5 8.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>' +
+        '</button></div>';
+    }).join('');
+    if (empty) empty.style.display = linkedNurture.length ? 'none' : 'block';
+    var hint = document.getElementById('nurture-ab-hint');
+    if (hint) hint.style.display = linkedNurture.length > 1 ? 'block' : 'none';
+    // Clear error when journeys linked
+    if (linkedNurture.length > 0) {
+      var err = document.getElementById('nurture-journey-error');
+      if (err) err.style.display = 'none';
+    }
+    // Update CCE variant rows based on current state
+    updateCCERows();
+    updateBarErrors();
+  }
+
+  function unlinkNurture(name) {
+    linkedNurture = linkedNurture.filter(function(x) { return x !== name; });
+    Object.keys(nurtureCbMap).forEach(function(id) {
+      if (nurtureCbMap[id] === name) { var c = document.getElementById(id); if (c) c.checked = false; }
+    });
+    var allCb = document.getElementById('nurture-cb-all');
+    if (allCb) allCb.checked = false;
+    renderNurtureRows();
+    updateBarErrors();
+  }
+
+  // ─────────────────────────────────────────────
+  // Offer dropdown
+  // ─────────────────────────────────────────────
+  function toggleOfferDropdown() {
+    var menu = document.getElementById('offer-menu');
+    var overlay = document.getElementById('offer-overlay');
+    var trigger = document.getElementById('offer-trigger');
+    var open = menu.style.display === 'none';
+    menu.style.display = open ? 'block' : 'none';
+    overlay.style.display = open ? 'block' : 'none';
+    trigger.classList.toggle('open', open);
+    if (open) document.getElementById('offer-search-inp').focus();
+  }
+  function closeOfferDropdown() {
+    document.getElementById('offer-menu').style.display = 'none';
+    document.getElementById('offer-overlay').style.display = 'none';
+    document.getElementById('offer-trigger').classList.remove('open');
+  }
+  function selectOffer(name, id) {
+    hasRealOffer = true;
+    document.getElementById('offer-trigger-label').textContent = name;
+    document.getElementById('offer-trigger-label').style.color = 'var(--text-mid)';
+    document.getElementById('offer-overview-name').textContent = name;
+    document.getElementById('offer-overview-id').textContent = id;
+    document.getElementById('offer-overview-row').style.display = 'flex';
+    document.getElementById('offer-overview-empty').style.display = 'none';
+    document.getElementById('no-offer-cb').checked = false;
+    closeOfferDropdown();
+    updateState();
+  }
+  function setNoOffer() {
+    hasRealOffer = false;
+    document.getElementById('offer-trigger-label').textContent = 'No Offer';
+    document.getElementById('offer-trigger-label').style.color = 'var(--text-mid)';
+    document.getElementById('offer-overview-name').textContent = 'NO OFFER';
+    document.getElementById('offer-overview-id').textContent = '355857377015470489';
+    document.getElementById('offer-overview-row').style.display = 'flex';
+    document.getElementById('offer-overview-empty').style.display = 'none';
+    document.getElementById('no-offer-cb').checked = true;
+    updateState();
+  }
+  function clearOffer() {
+    hasRealOffer = false;
+    document.getElementById('offer-trigger-label').textContent = 'Search or select an offer';
+    document.getElementById('offer-trigger-label').style.color = '';
+    document.getElementById('offer-overview-row').style.display = 'none';
+    document.getElementById('offer-overview-empty').style.display = 'flex';
+    document.getElementById('no-offer-cb').checked = false;
+    updateState();
+  }
+  function toggleNoOfferCb(cb) {
+    if (cb.checked) {
+      hasRealOffer = false;
+      setNoOffer();
+    } else {
+      hasRealOffer = false;
+      clearOffer();
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // CCE editable toggle (no-coupon state)
+  // ─────────────────────────────────────────────
+
+  // ─────────────────────────────────────────────
+  // Preview tab switcher
+  // ─────────────────────────────────────────────
+  function switchTab(id, btn) {
+    document.querySelectorAll('.ptab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.pcard').forEach(function(c) { c.classList.remove('show'); });
+    btn.classList.add('active');
+    document.getElementById('pcard-' + id).classList.add('show');
+  }
+
+  // ─────────────────────────────────────────────
+  // Submit validation
+  // ─────────────────────────────────────────────
+  function handleSubmit() {
+    var err = document.getElementById('nurture-journey-error');
+    if (hasCoupon && hasRealOffer && linkedNurture.length === 0) {
+      err.style.display = 'flex';
+      // Nurture is always inside More Options — expand it
+      document.getElementById('sec-optional').classList.remove('collapsed');
+      err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    if (err) err.style.display = 'none';
+    alert('Creative submitted successfully.');
+  }
+
+  // ─────────────────────────────────────────────
+  // Initialise: default state (coupons=no, no offer)
+  // ─────────────────────────────────────────────
+  updateState();
+</script>
+</body>
+</html>
