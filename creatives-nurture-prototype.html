@@ -845,9 +845,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
     var couponMissing = hasCoupon && couponSel && couponSel.value === '';
     if (couponErr) couponErr.style.display = couponMissing ? 'inline' : 'none';
 
-    // Nurture error: coupon selected (code chosen) + offer linked but no journey linked
-    var couponChosen = hasCoupon && couponSel && couponSel.value !== '';
-    var nurtureMissing = couponChosen && hasRealOffer && linkedNurture.length === 0;
+    // Nurture error: coupon = yes but no journey linked
+    var nurtureMissing = hasCoupon && linkedNurture.length === 0;
     if (nurtureErr) nurtureErr.style.display = nurtureMissing ? 'inline' : 'none';
   }
 
